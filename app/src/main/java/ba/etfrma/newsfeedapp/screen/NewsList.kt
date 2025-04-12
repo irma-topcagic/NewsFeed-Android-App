@@ -10,10 +10,8 @@ import ba.etfrma.newsfeedapp.model.NewsItem
 
 @Composable
 fun NewsList(newsItems: List<NewsItem>, listState: LazyListState, modifier: Modifier = Modifier) {
-    if (newsItems.isEmpty()) {
-        MessageCard("Nema pronađenih vijesti u ovoj kategoriji", modifier)
-    } else {
-        LazyColumn(
+
+    LazyColumn(
             modifier = modifier.testTag("news_list"),
             state = listState,
 
@@ -24,7 +22,6 @@ fun NewsList(newsItems: List<NewsItem>, listState: LazyListState, modifier: Modi
                 else
                     StandardNewsCard(newsItem = news, modifier = Modifier.padding(8.dp))
             }
-        }
     }
 }
 
