@@ -1,6 +1,5 @@
-package ba.etfrma.newsfeedapp.ui.theme
+package ri.rma.newsfeedapp.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

@@ -1,4 +1,4 @@
-package ba.etfrma.newsfeedapp.screen
+package ri.rma.newsfeedapp.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -10,13 +10,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
-import ba.etfrma.newsfeedapp.R
-import coil.compose.rememberImagePainter
-import ba.etfrma.newsfeedapp.model.NewsItem
+import ri.rma.newsfeedapp.model.NewsItem
 
 @Composable
 fun FeaturedNewsCard(newsItem: NewsItem, modifier: Modifier = Modifier) {
