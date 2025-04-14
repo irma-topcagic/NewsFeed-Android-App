@@ -24,5 +24,3 @@ fun NewsList(newsItems: List<NewsItem>, listState: LazyListState, modifier: Modi
         }
     }
 }
-
-

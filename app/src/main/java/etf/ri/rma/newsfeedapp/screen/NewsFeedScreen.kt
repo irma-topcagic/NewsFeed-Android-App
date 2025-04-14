@@ -13,8 +13,6 @@ import etf.ri.rma.newsfeedapp.data.NewsData
 @Composable
 fun NewsFeedScreen() {
 
-
-
     val allNews = NewsData.getAllNews()
     var selectedCategory by remember { mutableStateOf("Sve") }
 
