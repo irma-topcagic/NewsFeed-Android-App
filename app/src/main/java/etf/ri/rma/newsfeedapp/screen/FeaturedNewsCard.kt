@@ -19,16 +19,18 @@ import etf.ri.rma.newsfeedapp.R
 import etf.ri.rma.newsfeedapp.model.NewsItem
 
 @Composable
-fun FeaturedNewsCard(newsItem: NewsItem, modifier: Modifier = Modifier) {
-
+fun FeaturedNewsCard(newsItem: NewsItem, modifier: Modifier = Modifier,onClick: () -> Unit,
+                     jeLiKlikIzvrsen: Boolean) {
+    val bojaPozadine = if (jeLiKlikIzvrsen) Color(0xFFD3D3D3) else Color(0xFFFFFACD)
     Card(
         modifier = modifier
             .padding(8.dp)
             .fillMaxWidth().testTag("featured_news_card"),
         shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = bojaPozadine)
 
 
-        ) {
+    ) {
         Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
             Image(
                 painter = painterResource(R.drawable.slikarma),

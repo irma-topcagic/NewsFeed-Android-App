@@ -17,15 +17,26 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import etf.ri.rma.newsfeedapp.R
 
+
 import etf.ri.rma.newsfeedapp.model.NewsItem
+import kotlin.text.category
 
 @Composable
-fun StandardNewsCard(newsItem: NewsItem, modifier: Modifier = Modifier) {
+fun StandardNewsCard(newsItem: NewsItem, modifier: Modifier = Modifier,onClick: () -> Unit,
+                     jeLiKlikIzvrsen: Boolean) {
+    val cardColor = when (newsItem.category) {
+        "Sport" -> Color(0xFFADD8E6)
+        "Nauka/tehnologija" -> Color(0xFF90EE90)
+        "Politika"->Color(0xFFE6E6FA)
+        else -> MaterialTheme.colorScheme.surface
+    }
     Card(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth().testTag("standard_news_card"),
         shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = cardColor)
+
 
         ) {
         Row(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
@@ -64,4 +75,5 @@ fun StandardNewsCard(newsItem: NewsItem, modifier: Modifier = Modifier) {
         }
     }
 }
+
 

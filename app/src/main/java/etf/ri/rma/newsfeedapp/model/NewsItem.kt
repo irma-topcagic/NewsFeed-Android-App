@@ -8,5 +8,6 @@ data class NewsItem(
     val category: String,
     val isFeatured: Boolean,
     val source: String,
-    val publishedDate: String
+    val publishedDate: String,
+
 )
