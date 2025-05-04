@@ -12,29 +12,27 @@ import etf.ri.rma.newsfeedapp.model.NewsItem
 fun NewsList(
     newsItems: List<NewsItem>,
     listState: LazyListState,
-    clickedNewsIds: List<String>,
-    onCardClick: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onItemClick: (String) -> Unit // Accept only the id as a parameter
 ) {
     LazyColumn(
         modifier = modifier.testTag("news_list"),
         state = listState,
     ) {
-        items(newsItems, key = { it.id }) { news ->
-            if (news.isFeatured)
+        items(newsItems, key = { it.id ?: it.hashCode() }) { news ->
+            if (news.isFeatured) {
                 FeaturedNewsCard(
                     newsItem = news,
-                    isClicked = clickedNewsIds.contains(news.id),
-                    onClick = { onCardClick(news.id) },
-                    modifier = Modifier.padding(8.dp)
+                    modifier = Modifier.padding(8.dp),
+                    onClick = { news.id?.let { onItemClick(it) } } // Pass only the id
                 )
-            else
+            } else {
                 StandardNewsCard(
                     newsItem = news,
-                    isClicked = clickedNewsIds.contains(news.id),
-                    onClick = { onCardClick(news.id) },
-                    modifier = Modifier.padding(8.dp)
+                    modifier = Modifier.padding(8.dp),
+                    onClick = { news.id?.let { onItemClick(it) } } // Pass only the id
                 )
+            }
         }
     }
 }

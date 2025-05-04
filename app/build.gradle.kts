@@ -58,5 +58,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     androidTestImplementation("org.jetbrains.kotlin:kotlin-test-junit")
     testImplementation(kotlin("test"))
+    implementation ("androidx.navigation:navigation-compose:2.5.0")
+    implementation(platform("androidx.compose:compose-bom:2023.04.01"))
 
 }
