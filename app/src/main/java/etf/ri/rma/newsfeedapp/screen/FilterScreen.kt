@@ -18,14 +18,14 @@ import java.util.*
 fun FilterScreen(
     navController: NavController
 ) {
-    // Uzimamo prethodno sačuvane filtere ili podrazumevane vrednosti
+
     val savedHandle = navController.previousBackStackEntry?.savedStateHandle
     val initCategory = savedHandle?.get<String>("filters_category") ?: "Sve"
     val initUnwantedWords = savedHandle?.get<List<String>>("filters_unwantedWords") ?: emptyList()
     val initDateFrom = savedHandle?.get<String>("filters_dateFrom")
     val initDateTo = savedHandle?.get<String>("filters_dateTo")
 
-    // Koristimo rememberSaveable da se stanje sačuva kroz rotacije i recompozicije
+
     var selectedCategory by rememberSaveable { mutableStateOf(initCategory) }
     var unwantedWords by rememberSaveable { mutableStateOf(initUnwantedWords) }
     var unwantedInput by rememberSaveable { mutableStateOf("") }
@@ -95,7 +95,7 @@ fun FilterScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Unwanted words input
+
         Row {
             TextField(
                 value = unwantedInput,

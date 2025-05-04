@@ -20,7 +20,7 @@ fun NewsDetailsScreen(navController: NavController, newsId: String) {
     val currentNews = allNews.find { it.id == newsId }
 
     if (currentNews == null) {
-        // Handle case where news is not found
+
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
             Text("Vijest nije pronađena", modifier = Modifier.testTag("details_error"))
         }
@@ -65,7 +65,7 @@ fun NewsDetailsScreen(navController: NavController, newsId: String) {
         Text(text = "Datum objave: ${currentNews.publishedDate}", modifier = Modifier.testTag("details_date"))
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Related news
+
         Text(text = "Povezane vijesti iz iste kategorije")
         relatedNews.forEachIndexed { index, news ->
             Spacer(modifier = Modifier.height(8.dp))
@@ -75,7 +75,7 @@ fun NewsDetailsScreen(navController: NavController, newsId: String) {
                     .testTag("related_news_title_${index + 1}")
                     .clickable {
                         navController.navigate("details/${news.id}") {
-                            // izbriši sve između current i newsFeed
+
                             popUpTo("newsFeed") { inclusive = false }
                         }
                     }
@@ -84,7 +84,7 @@ fun NewsDetailsScreen(navController: NavController, newsId: String) {
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Close button
+
         Button(
             onClick = { navController.popBackStack("newsFeed", inclusive = false) },
             modifier = Modifier.fillMaxWidth().testTag("details_close_button")

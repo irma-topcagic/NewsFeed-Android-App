@@ -13,7 +13,7 @@ fun NewsList(
     newsItems: List<NewsItem>,
     listState: LazyListState,
     modifier: Modifier = Modifier,
-    onItemClick: (String) -> Unit // Accept only the id as a parameter
+    onItemClick: (String) -> Unit
 ) {
     LazyColumn(
         modifier = modifier.testTag("news_list"),
@@ -24,13 +24,13 @@ fun NewsList(
                 FeaturedNewsCard(
                     newsItem = news,
                     modifier = Modifier.padding(8.dp),
-                    onClick = { news.id?.let { onItemClick(it) } } // Pass only the id
+                    onClick = { news.id?.let { onItemClick(it) } }
                 )
             } else {
                 StandardNewsCard(
                     newsItem = news,
                     modifier = Modifier.padding(8.dp),
-                    onClick = { news.id?.let { onItemClick(it) } } // Pass only the id
+                    onClick = { news.id?.let { onItemClick(it) } }
                 )
             }
         }
