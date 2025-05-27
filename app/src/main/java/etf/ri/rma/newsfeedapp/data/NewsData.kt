@@ -5,72 +5,127 @@ import etf.ri.rma.newsfeedapp.model.NewsItem
 object NewsData {
     private val newsList: List<NewsItem> by lazy {
         listOf(
-            NewsItem("1", "Naučnici razvijaju novu metodu za skladištenje obnovljive energije",
-                "Otkriće bi moglo revolucionirati energetsku industriju.", null,
-                "Nauka/tehnologija", false, "TechRadar", "07-04-2025"),
-            NewsItem("2", "Spektakularan preokret u posljednjoj minuti donosi pobjedu domaćinu",
-                "Utakmica je završila rezultatom 3:2 nakon dramatičnog gola u finišu.",
-                null, "Sport", true, "Sport Klub", "07-02-2025"),
-            NewsItem("3", "Domen Prevc obara svjetski rekord skokom od 254,5 metara u Planici",
-                "Slovenački ski skakač Domen Prevc postavio je novi svjetski rekord skokom od 254,5 metara na takmičenju u Planici, " +
-                        "nadmašivši prethodni rekord Stefana Krafta iz 2017. godine.",
-                null, "Sport", true, "Reuters", "30-03-2025"),
-            NewsItem("4", "Bosanskohercegovački startup razvija aplikaciju za automatsko prepoznavanje biljaka",
-                "Aplikacija koristi AI za analizu fotografija u realnom vremenu.",
-                null, "Nauka/tehnologija", true, "Netokracija", "03-04-2025"),
-            NewsItem("5", "Nogometna reprezentacija BiH ostvarila drugu pobjedu u kvalifikacijama",
-                "Bosna i Hercegovina pobijedila je Kipar rezultatom 2:1.", null, "Sport", true,
-                "Al Jazeera Balkans", "04-03-2025"),
-            NewsItem("6", "Izetbegović: Niko ne treba pregovarati s Dodikom",
-                "Predsjednik SDA, Bakir Izetbegović, izjavio je da niko ne treba pregovarati s Miloradom Dodikom, " +
-                        "naglašavajući da će on biti uhapšen, ali nije siguran kada i kako.",
-                null, "Politika", true, "Vijesti.ba", "07-04-2025"),
-            NewsItem("7", "Hamilton dobija podršku Ferrarija pred Veliku nagradu Bahreina",
-                "Lewis Hamilton, sada vozač Ferrarija, traži preokret u sezoni na predstojećoj Velikoj nagradi Bahreina",
-                null, "Sport", false, "talksport.com", "10-02-2025"),
-            NewsItem("8","Nova politička strategija za narednu dekadu izaziva oprečne reakcije",
-                "Vlada je objavila planove za sveobuhvatne reforme...",
-                null, "Politika",false,"Dnevni avaz","07-04-2025"),
-            NewsItem("9", "Naučnici razvili revolucionarnu tehnologiju koja može da promijeni svakodnevni život",
-                "Tehnološki napredak", null, "Nauka/tehnologija", false, "Naučni članak", "09-01-2025"),
-            NewsItem( "10", "Političke tenzije rastu nakon neusaglašenih stavova o budžetu",
-                "Rasprava u parlamentu dodatno je produbila razlike među koalicionim partnerima.",
-                null, "Politika", false, "Al Jazeera Balkans", "05-03-2025"),
-            NewsItem( "11", "Hrvatska saznala protivnike u kvalifikacijama za SP 2026",
-                "Hrvatska će igrati u grupi L zajedno s Češkom, Crnom Gorom, Farskim Otocima i Gibraltarom.",
-                null, "Sport", false, "Gol.hr", "21-03-2025"),
-            NewsItem( "12", "Bećirović uputio zahtjev za hitnu sjednicu Predsjedništva BiH",
-                "Član Predsjedništva BiH, Denis Bećirović, zatražio je hitnu sjednicu Predsjedništva zbog aktuelne političke situacije u zemlji.",
-                null, "Politika", false, "Slobodna Bosna", "03-04-2025"
+            NewsItem(
+                uuid = "793b24b8-4e9b-42ee-aaf7-5c39cf6874e5",
+                title = "Xabi Alonso officially takes over as Real Madrid's coach",
+                snippet = "MADRID — Xabi Alonso officially took over Real Madrid's coaching job on Monday, " +
+                        "vowing to follow in the footsteps of Carlo Ancelotti and saying he has “a go...",
+                imageUrl = "https://www.sportsnet.ca/wp-content/uploads/2025/05/alonso_xabi_1280.jpg",
+                category = "sports",
+                isFeatured = false,
+                source = "sportsnet.ca",
+                publishedDate = "26-05-2025",
+                imageTags = arrayListOf()
             ),
-            NewsItem( "13", "Amazon planira lansirati 3.000 satelita za globalni internet",
-                "Amazon je najavio misiju 'Kuiper Atlas 1' za lansiranje satelita koji će pružati širokopojasni internet na globalnom nivou, konkurirajući Starlinku.",
-                null, "Nauka/tehnologija", false, "Al Jazeera Balkans", "03-04-2025"),
-            NewsItem(  "14",  "NASA i SpaceX šalju novu posadu na svemirsku stanicu",
-                "NASA i SpaceX su lansirali zamjensku posadu za Međunarodnu svemirsku stanicu kako bi omogućili povratak astronauta koji su bili zaglavljeni na stanici.",
-                null, "Nauka/tehnologija", true, "Glas Amerike", "15-03-2025"),
-            NewsItem("15", "Paracetamol može izazvati promjene ličnosti", "Naučnici su otkrili da paracetamol može izazvati bizarne promjene ličnosti, što otvara nova pitanja o njegovom uticaju na ljudsko ponašanje.",
-                null, "Nauka/tehnologija", true, "Nezavisne novine", "05-04-2025"),
-            NewsItem( "16", "Favoriti za osvajanje Mastersa 2025: Scheffler i McIlroy u borbi na Augusti",
-                "Masters turnir 2025. godine na Augusta Nationalu počinje 10. aprila, s Scottiejem Schefflerom i Roryjem McIlroyem kao glavnim favoritima za osvajanje zelene jakne.", null,
-                "Sport", false, "talksport.com", "07-03-2025"),
-            NewsItem( "17", "HDZ i SNSD blokirali Dom naroda: Dugo se nećemo sastati!",
-                "Stranke HDZ i SNSD blokirale su rad Doma naroda, što je izazvalo političke tenzije i odgađanje daljih sjednica.",
-                null, "Politika", false, "Vijesti.ba", "07-02-2025"),
-            NewsItem("18", "Cristiano Ronaldo postigao 800. gol u profesionalnoj karijeri",
-                "Cristiano Ronaldo postigao je svoj 800. gol u profesionalnoj karijeri, postavši jedan od najprolifičnijih napadača u povijesti nogometa.",
-                null, "Sport", true, "Marca", "06-04-2025"),
-            NewsItem("19", "EU usvojila nove sankcije prema Rusiji zbog vojne eskalacije u Ukrajini", "Europska unija" +
-                    " usvojila je nove sankcije protiv Rusije, osudivši vojnu eskalaciju u Ukrajini, a naglasila je potrebu za daljnjim diplomatskim naporima.",
-                null, "Politika", false, "Reuters", "04-04-2025"),
-            NewsItem( "20", "Sudan: Politička kriza u zemlji se pogoršava, deseci poginulih u sukobima",
-                "Politička kriza u Sudanu se pogoršava, a deseci ljudi su poginuli u nasilnim sukobima između vojnog i civilnog vodstva.",
-                null, "Politika", false, "Al Jazeera", "02-04-2025"),
-            NewsItem( "21", "Lionel Messi pomogao Interu Miami u osvojenju prve MLS titule",
-                "Lionel Messi je svojim nastupom pomogao Interu Miami da osvoji prvu MLS titulu, ostvarivši izvanredne golove u finalu.",
-                null, "Sport", true, "ESPN", "03-04-2025"),
-            NewsItem( "22", "NASA lansira novu misiju za istraživanje Marsa", "NASA je uspješno lansirala novu misiju koja ima za cilj istraživanje mogućnosti ljudske kolonizacije Marsa, a prvi podaci očekuju se za nekoliko mjeseci.",
-                null, "Nauka/tehnologija", false, "NASA", "05-04-2025"
+            NewsItem(
+                uuid= "7c588b4d-2d15-4776-ac55-4e9bbdd3fe79",
+                title = "Swiatek, Alcaraz off to good starts in French Open title defences",
+                snippet = "PARIS — Iga Swiatek, who has struggled lately, and Carlos Alcaraz, who has not, " +
+                        "got off to good starts in their French Open title defences Monday, recording s",
+                imageUrl =" https://www.sportsnet.ca/wp-content/uploads/2025/05/Alcaraz-1.jpg",
+                category = "sports",
+                isFeatured = false,
+
+                source = "sportsnet.ca",
+                publishedDate = "26-05-2025",
+                imageTags = arrayListOf()
+            ),
+            NewsItem(
+                uuid = "69778c36-67b4-4f0b-adf6-98ff9cd1d3de",
+                title = "Scott McLaughlin's Indy 500 hopes dashed as he crashes before green flag waves",
+                snippet = "NEW You can now listen to Fox News articles!\\n\\nScott McLaughlin’s Indianapolis " +
+                        "500 was finished before the race went green.\\n\\nMcLaughlin and the rest of the fie",
+                imageUrl = "https://static.foxnews.com/foxnews.com/content/uploads/2025/05/scott-mclaughlin6.jpg",
+                category = "politics",
+                isFeatured = false,
+                source = "foxnews.com",
+                publishedDate = "25-05-2025",
+                imageTags = arrayListOf()
+            ),
+            NewsItem(
+                uuid = "36a76ec2-af2b-4534-8988-7154f3295601",
+                title = "Kyle Larson's attempt at 'Double' comes to end as he wrecks at Indy 500\",\n" +
+                        "                        \"description\": \"Kyle Larson failed at his opportunity to complete the Indianapolis 500 on Sunday " +
+                        "as he and two others wrecked on Lap 91 of the race. He will now race at the Coca-Cola 600.",
+                snippet = "NEW You can now listen to Fox News articles!\\n\\nKyle Larson’s " +
+                        "attempt to complete \\\"The Double\\\" ended abruptly on Sunday.",
+                imageUrl = "https://static.foxnews.com/foxnews.com/content/uploads/2025/05/kyle-larson2.jpg",
+                category = "politics",
+                isFeatured = false,
+                source = "foxnews.com",
+                publishedDate = "25-05-2025",
+                imageTags = arrayListOf("")
+            ),
+            NewsItem(
+                uuid = "f9010a85-3c81-43fd-bb7d-04ea40f15e02",
+                title = "NOAA reveals 2025 Atlantic hurricane season forecast today",
+                snippet = "Ten days before start of the 2025 Atlantic hurricane season, officials " +
+                        "at the National Oceanic and Atmospheric Administration are announcing their forecast for",
+                imageUrl = "https://assets1.cbsnewsstatic.com/hub/i/r/2024/10/08/f5bcab34-e73c-457d-98af-31dc2afbb097/thumbnail/1200x630/c8e1c291b7ae70671d278f0dddd8af2f/hurricane-milton-20241008-1300.jpg?v=f80504b4a2a31dbf7fe3bb9ae688e3d2",
+                category = "science",
+                isFeatured = false,
+                source = "cbsnews.com",
+                publishedDate = "22-05-2025",
+                imageTags = arrayListOf()
+            ),
+            NewsItem(
+                uuid = "8e726cdf-c443-4c8e-9f5e-518d472eab64",
+                title = "World's first successful tailor-made gene therapy saves baby born with rare disorder",
+                snippet = "World's first successful tailor-made gene therapy saves baby born with rare disorder Baby KJ Muldoon was born with a rare genetic condition that is often fatal,",
+                imageUrl = "https://assets3.cbsnewsstatic.com/hub/i/r/2025/05/16/a7901dc4-fd17-42f5-937e-3fcdfd9239b9/thumbnail/1200x630/f416223879d24bf92accbef0ad0adaa6/0516-cmo-lapook.jpg?v=6df9366690ed146f169dd0670c453f91",
+                category = "science",
+                isFeatured = true,
+                source = "cbsnews.com",
+                publishedDate = "16-05-2025",
+                imageTags = arrayListOf()
+            ),
+            NewsItem(
+                uuid = "8062c531-e519-425a-80f3-947f192fb472",
+                title = "A peek inside Hunter Biden's art studio | May 26 editorial cartoons",
+                snippet = "Sign up for The Week's Free Newsletters\\n\\nFrom our morning news briefing to a weekly Good News Newsletter, get the best of The Week delivered directly to your in",
+                imageUrl = "https://cdn.mos.cms.futurecdn.net/wc9p6aPqgbPQ2SMTfqFezg.jpg",
+                category = "politics",
+                isFeatured = false,
+                source = "theweek.com",
+                publishedDate = "26-05-2025",
+                imageTags = arrayListOf()
+            ),
+            NewsItem(
+                uuid = "8e554d34-115f-4172-a467-bf19c7da05a1",
+                title = "Military veterans of US' 'toxic soup' " +
+                        "Uzbekistan base fighting for proper care 20 years after its shutter",
+                snippet = "At the former Soviet base-turned-CIA black site and U.S. military base in Uzbekistan, " +
+                        "researchers knew early on danger lingered not just from the enemy but from",
+                imageUrl = "https://static.foxnews.com/foxnews.com/content/uploads/2025/05/uzbekistan-preview.jpg",
+                category = "politics",
+                isFeatured = false,
+                source = "foxnews.com",
+                publishedDate = "26-05-2025",
+                imageTags = arrayListOf()
+            ),
+            NewsItem(
+                uuid = "3b10ce24-581d-4d0b-9c5a-86a7dbbe7c05",
+                title = "Free Rafael Nadal tribute T-shirts spark \$500 resale frenzy",
+                snippet = "Rafael Nadal expresses his emotions after being honored at the French Open for his retirement from tennis." +
+                        " (0:57)\\n\\nOpen Extended Reactions\\n\\nPARIS -- A day after",
+                imageUrl = "https://a.espncdn.com/combiner/i?img=%2Fphoto%2F2025%2F0526%2Fr1498524_1296x729_16%2D9.jpg",
+                category = "sports",
+                isFeatured = false,
+                source = "espn.com",
+                publishedDate = "26-05-2025",
+                imageTags = arrayListOf()
+            ),
+            NewsItem(
+                uuid = "40497223-4917-4101-b9a6-24d745252047",
+                title = "This machine can solve a Rubik's cube faster than most people blink",
+                snippet = "Blink and you'll miss it: A Purdue University student engineering team has built a robot that can " +
+                        "solve a Rubik's cube in one-tenth of a second — faster than",
+                imageUrl = "https://media-cldnry.s-nbcnews.com/image/upload/t_nbcnews-fp-1200-630,f_auto,q_auto:best/rockcms/2025-05/250515-robot-Rubiks-cube-ew-518p-952641.jpg",
+                category = "science",
+                isFeatured = false,
+                source = "nbcnews.com",
+                publishedDate = "15-05-2025",
+                imageTags = arrayListOf()
             )
         )
     }

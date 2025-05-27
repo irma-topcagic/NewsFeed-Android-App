@@ -60,5 +60,7 @@ dependencies {
     testImplementation(kotlin("test"))
     implementation ("androidx.navigation:navigation-compose:2.5.0")
     implementation(platform("androidx.compose:compose-bom:2023.04.01"))
-
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:???")
+    implementation("com.squareup.retrofit2:retrofit:+")
+    implementation("com.squareup.retrofit2:converter-gson:+")
 }
