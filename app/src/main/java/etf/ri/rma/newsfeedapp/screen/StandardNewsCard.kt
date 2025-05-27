@@ -1,4 +1,6 @@
+// etf.ri.rma.newsfeedapp.screen/StandardNewsCard.kt
 package etf.ri.rma.newsfeedapp.screen
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -11,33 +13,41 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
+// OBRISI OVO: import androidx.compose.ui.res.painterResource // Ne treba ti više za statičku sliku
 import androidx.compose.ui.text.font.FontWeight
-import etf.ri.rma.newsfeedapp.R
+// OBRISI OVO: import etf.ri.rma.newsfeedapp.R // Ne treba ti R ako ne referenciraš R.drawable.slikarma
+// DODAJ OVO:
+import coil.compose.rememberAsyncImagePainter
 import etf.ri.rma.newsfeedapp.model.NewsItem
+
 @Composable
-fun StandardNewsCard(newsItem: NewsItem,modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
+fun StandardNewsCard(newsItem: NewsItem, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    // Uklonjen je suvišni Box koji je omotavao Card,
+    // jer Card već ima modificatore za popunjavanje širine, klikabilnost i padding.
+    Card(
+        modifier = modifier // Koristi proslijeđeni modifier, koji već ima padding ako dolazi iz NewsList
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(8.dp)
-    )
-    Card(
-        modifier = Modifier
-            .padding(8.dp)
-            .fillMaxWidth().clickable { onClick() }.testTag("standard_news_card"),
+            .testTag("standard_news_card"),
         shape = RoundedCornerShape(8.dp),
     ) {
         Row(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
-            Image(
-                painter = painterResource(R.drawable.slikarma),
-                contentDescription = "Image",
-                modifier = Modifier
-                    .size(100.dp)
-                    .padding(end = 16.dp),
-                contentScale = ContentScale.Crop
-            )
+            // Provjera da li imageUrl postoji i nije prazan prije prikaza slike
+            val imageUrl = newsItem.imageUrl
+            if (!imageUrl.isNullOrEmpty()) { // Dodato provjeru za null i prazan string
+                Image(
+                    painter = rememberAsyncImagePainter(imageUrl), // OVDJE JE PROMJENA
+                    contentDescription = "Slika vijesti: ${newsItem.title}", // Bolji contentDescription
+                    modifier = Modifier
+                        .size(100.dp)
+                        .padding(end = 16.dp),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                // Alternativni prikaz ako nema slike (npr. prazan prostor ili placeholder ikona)
+                Spacer(modifier = Modifier.size(100.dp).padding(end = 16.dp))
+                // Ili možete ovdje dodati Text("Nema slike") ili Icon()
+            }
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = newsItem.title,

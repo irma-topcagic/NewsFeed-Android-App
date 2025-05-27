@@ -19,18 +19,18 @@ fun NewsList(
         modifier = modifier.testTag("news_list"),
         state = listState,
     ) {
-        items(newsItems, key = { it.id ?: it.hashCode() }) { news ->
+        items(newsItems, key = { it.uuid ?: it.hashCode() }) { news ->
             if (news.isFeatured) {
                 FeaturedNewsCard(
                     newsItem = news,
                     modifier = Modifier.padding(8.dp),
-                    onClick = { news.id?.let { onItemClick(it) } }
+                    onClick = { news.uuid?.let { onItemClick(it) } }
                 )
             } else {
                 StandardNewsCard(
                     newsItem = news,
                     modifier = Modifier.padding(8.dp),
-                    onClick = { news.id?.let { onItemClick(it) } }
+                    onClick = { news.uuid?.let { onItemClick(it) } }
                 )
             }
         }
