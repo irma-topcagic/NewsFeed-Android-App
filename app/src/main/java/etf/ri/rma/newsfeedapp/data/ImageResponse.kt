@@ -1,27 +1,24 @@
 package etf.ri.rma.newsfeedapp.data
 
 data class ImageResponse(
-    val result: ImmagaResult?,
-    val status: ImmagaStatus?
+    val result: TagResult?,
+    val status: Status?
 )
 
-data class ImmagaResult(
-    val tags: List<TagItem>? // Lista objekata tipa TagItem
+data class TagResult(
+    val tags: List<TagEntry>?
 )
 
-// Pojedinačni tag sa sigurnošću (confidence) i nazivom (tag)
-data class TagItem(
-    val confidence: Double?, // Predstavlja povjerenje (confidence) u tag
-    val tag: TagLanguage? // Objekat koji sadrži naziv taga na engleskom
+data class TagEntry(
+    val confidence: Double?,
+    val tag: TagLanguage?
 )
 
-// Naziv taga na engleskom jeziku
 data class TagLanguage(
-    val en: String? // Engleski naziv taga
+    val en: String?
 )
 
-// Status API odgovora (npr. "success")
-data class ImmagaStatus(
-    val text: String?, // Tekstualni opis statusa
-    val type: String?  // Tip statusa (npr. "success")
+data class Status(
+    val text: String?,
+    val type: String?
 )

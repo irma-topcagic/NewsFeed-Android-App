@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import etf.ri.rma.newsfeedapp.data.NewsDAO // Import NewsDAO
+import etf.ri.rma.newsfeedapp.data.network.NewsDAO // Import NewsDAO
 import etf.ri.rma.newsfeedapp.model.NewsItem
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -27,20 +27,19 @@ fun NewsFeedScreen(navController: NavController? = null) {
     val displayedNews = remember { mutableStateListOf<NewsItem>() }
     val coroutineScope = rememberCoroutineScope()
     val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
-
+val newsDao=NewsDAO()
     // Okidač za dohvaćanje vijesti kada se promijeni kategorija ili drugi filteri
     LaunchedEffect(savedCategory, savedDateFrom, savedDateTo, savedUnwantedWords) {
         coroutineScope.launch {
             val newsSourceList = if (savedCategory == "Sve") {
-                NewsDAO.getAllStories() // Dohvati sve vijesti iz keša (sve kategorije)
+                newsDao.getAllStories() // Dohvati sve vijesti iz keša (sve kategorije)
             } else {
                 // Za specifične kategorije, pozovi getTopStoriesByCategory, koja se brine o API pozivu i 30s kešu
-                NewsDAO.getTopStoriesByCategory(savedCategory)
+                newsDao.getTopStoriesByCategory(savedCategory)
             }
 
             // Sada primijenite dodatne filtere (datum, neželjene riječi) na dobijenu listu
             var filteredResult = newsSourceList
-
             if (savedUnwantedWords.isNotEmpty()) {
                 filteredResult = filteredResult.filter { item ->
                     savedUnwantedWords.none { word ->
@@ -99,4 +98,3 @@ fun NewsFeedScreen(navController: NavController? = null) {
         }
     }
 }
-

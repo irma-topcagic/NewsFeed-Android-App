@@ -21,9 +21,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter // Za učitavanje slika
-import etf.ri.rma.newsfeedapp.data.ImageDAO // Vaš ImageDAO
-import etf.ri.rma.newsfeedapp.data.InvalidImageURLException // Vaš custom izuzetak
-import etf.ri.rma.newsfeedapp.data.NewsDAO // Pretpostavljam da NewsDAO.getAllStories() postoji
+import etf.ri.rma.newsfeedapp.data.network.ImagaDAO // Vaš ImageDAO
+import etf.ri.rma.newsfeedapp.data.network.exception.InvalidImageURLException // Vaš custom izuzetak
+import etf.ri.rma.newsfeedapp.data.network.NewsDAO // Pretpostavljam da NewsDAO.getAllStories() postoji
 import etf.ri.rma.newsfeedapp.model.NewsItem
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -44,7 +44,8 @@ fun NewsDetailsScreen(navController: NavController, newsId: String) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current // Za prikaz Toast poruka
     val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()) // Za poređenje datuma
-
+    val newsDAO = NewsDAO()
+    val imagaDAO = ImagaDAO()
     // Dohvati vijest, slične vijesti i tagove za sliku
     LaunchedEffect(newsId) {
         // Resetuj stanja prilikom promjene vijesti (npr. ako se navigira na detalje druge vijesti)
@@ -53,7 +54,8 @@ fun NewsDetailsScreen(navController: NavController, newsId: String) {
         imageUrlTags.clear()
 
         // Dohvati vijest iz NewsDAO (pretpostavljamo da je tamo keširana, npr. iz getAllStories)
-        val foundNews = NewsDAO.getAllStories().find { it.uuid == newsId }
+
+        val foundNews = newsDAO.getAllStories().find { it.uuid == newsId }
         newsItem.value = foundNews
 
         if (foundNews == null) {
@@ -70,7 +72,7 @@ fun NewsDetailsScreen(navController: NavController, newsId: String) {
         } else {
             Log.d("NewsDetailsScreen", "Dohvaćam slične vijesti za ${foundNews.uuid}")
             try {
-                val fetchedSimilar = NewsDAO.getAllStories()
+                val fetchedSimilar = newsDAO.getAllStories()
                     .filter { it.category == foundNews.category && it.uuid != foundNews.uuid }
                     .sortedWith(compareBy(
                         {
@@ -109,7 +111,7 @@ fun NewsDetailsScreen(navController: NavController, newsId: String) {
         if (!imageUrl.isNullOrEmpty()) { // Provjera i za null i za prazan string
             coroutineScope.launch {
                 try {
-                    val tags = ImageDAO.getTags(imageUrl) // Prosljeđujemo non-null String
+                    val tags = imagaDAO.getTags(imageUrl) // Prosljeđujemo non-null String
                     imageUrlTags.addAll(tags)
                     if (tags.isEmpty()) {
                         Log.w("NewsDetailsScreen", "Nema pronađenih tagova za sliku: $imageUrl")

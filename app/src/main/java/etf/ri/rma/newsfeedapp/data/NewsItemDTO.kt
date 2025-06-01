@@ -2,6 +2,7 @@ package etf.ri.rma.newsfeedapp.data
 
 import com.google.gson.annotations.SerializedName
 import etf.ri.rma.newsfeedapp.model.NewsItem
+import java.util.UUID
 
 data class NewsItemDTO(
     @SerializedName("uuid")
