@@ -27,7 +27,7 @@ fun NewsItemDTO.toNewsItem(): NewsItem {
         title = this.title,
         snippet = this.snippet,
         imageUrl = this.imageUrl,
-        category = this.categories?.firstOrNull() ?: "Uncategorized",
+        category = this.categories?.firstOrNull()?.lowercase() ?: "general",
         isFeatured = false,
         source = this.source,
         publishedDate = formatPublishedDate(this.publishedDate),

@@ -3,8 +3,15 @@ package etf.ri.rma.newsfeedapp.data
 import etf.ri.rma.newsfeedapp.model.NewsItem
 
 object NewsData {
-    private val newsList: List<NewsItem> by lazy {
-        listOf(
+    private val initialNews = mutableListOf<NewsItem>()
+    private val fetchedNews = mutableListOf<NewsItem>()
+    private var initialized = false
+
+    fun initializeHardcodedIfNeeded() {
+        if (initialized) return
+        initialized = true
+
+        val hardcoded =listOf(
             NewsItem(
                 uuid = "793b24b8-4e9b-42ee-aaf7-5c39cf6874e5",
                 title = "Xabi Alonso officially takes over as Real Madrid's coach",
@@ -74,7 +81,7 @@ object NewsData {
                 snippet = "World's first successful tailor-made gene therapy saves baby born with rare disorder Baby KJ Muldoon was born with a rare genetic condition that is often fatal,",
                 imageUrl = "https://assets3.cbsnewsstatic.com/hub/i/r/2025/05/16/a7901dc4-fd17-42f5-937e-3fcdfd9239b9/thumbnail/1200x630/f416223879d24bf92accbef0ad0adaa6/0516-cmo-lapook.jpg?v=6df9366690ed146f169dd0670c453f91",
                 category = "science",
-                isFeatured = true,
+                isFeatured = false,
                 source = "cbsnews.com",
                 publishedDate = "16-05-2025",
                 imageTags = arrayListOf()
@@ -128,6 +135,55 @@ object NewsData {
                 imageTags = arrayListOf()
             )
         )
+        initialNews.addAll(hardcoded)
+        }
+
+/**
+ * ✅ Vraća sve vijesti: hardkodirane + dohvaćene sa API-ja
+ */
+fun getAllNews(): List<NewsItem> {
+    initializeHardcodedIfNeeded()
+    return (initialNews + fetchedNews).distinctBy { it.uuid + it.category }
+}
+
+/**
+ * ✅ Samo vijesti sa API-ja, bez hardkodiranih
+ */
+fun getOnlyWebItems(): List<NewsItem> = fetchedNews.toList()
+
+fun getByCategory(category: String): List<NewsItem> {
+    return getAllNews().filter { it.category.equals(category, ignoreCase = true) }
+}
+
+fun addItem(news: NewsItem, toCategory: String) {
+    val exists = fetchedNews.any { it.uuid == news.uuid && it.category == toCategory }
+    if (!exists) {
+        fetchedNews.add(news.copy(category = toCategory, isFeatured = false))
     }
-    fun getAllNews(): List<NewsItem> = newsList
+}
+
+fun addAllIfNew(newItems: List<NewsItem>) {
+    newItems.forEach { newItem ->
+        val exists = fetchedNews.any { it.uuid == newItem.uuid && it.category == newItem.category }
+        if (!exists) {
+            fetchedNews.add(newItem.copy(isFeatured = false))
+        }
+    }
+}
+
+fun promoteToFeatured(uuid: String, category: String) {
+    val updated = fetchedNews.map {
+        if (it.uuid == uuid && it.category == category) it.copy(isFeatured = true)
+        else it
+    }
+    fetchedNews.clear()
+    fetchedNews.addAll(updated)
+}
+
+fun updateTagsForImageUrl(url: String, tags: List<String>) {
+    (initialNews + fetchedNews).filter { it.imageUrl == url }.forEach { item ->
+        item.imageTags.clear()
+        item.imageTags.addAll(tags)
+    }
+}
 }

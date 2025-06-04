@@ -8,9 +8,6 @@
       <SelectionState runConfigName="TestS3">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="testIfCacheingWorks()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="testIfCacheingWorks2()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>

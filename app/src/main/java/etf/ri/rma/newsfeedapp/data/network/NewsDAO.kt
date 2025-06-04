@@ -1,5 +1,6 @@
 package etf.ri.rma.newsfeedapp.data.network
 
+import android.util.Log
 import etf.ri.rma.newsfeedapp.data.NewsData
 import etf.ri.rma.newsfeedapp.data.network.api.NewsApiService
 import etf.ri.rma.newsfeedapp.data.network.api.RetrofitInstance
@@ -9,6 +10,8 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.Collections
 import etf.ri.rma.newsfeedapp.data.network.exception.InvalidUUIDException
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 class NewsDAO {
 
@@ -18,39 +21,27 @@ class NewsDAO {
         apiService = service
     }
 
-    private val allStoriesMap: ConcurrentHashMap<String, NewsItem> = ConcurrentHashMap()
-    private val _allStoriesList: MutableList<NewsItem> = Collections.synchronizedList(mutableListOf())
-    private val allStoriesList: List<NewsItem> get() = _allStoriesList.toList()
-    private val lastFetch: ConcurrentHashMap<String, Long> = ConcurrentHashMap()
+    private val cacheTime = mutableMapOf<String, Long>()
+    private val uuidCache = mutableMapOf<String, List<NewsItem>>()
+    private val mutex = Mutex()
 
-    private val API_TOKEN = "eNOHHXF1gTSvpJM78iDBK7If6VS6TJaEF6k6NLdq"
+    private val API_TOKEN = "RltfEUuzmKQxGsNc8sBK4icfoi2b9m6m313O8p3Y"
 
-    init {
-        if (_allStoriesList.isEmpty()) {
-            val initial = NewsData.getAllNews()
-            initial.forEach {
-                allStoriesMap[it.uuid] = it
-                _allStoriesList.add(it)
-            }
-        }
-    }
 
-    private fun mapCategoryForApi(category: String): String {
+
+     fun mapCategoryForApi(category: String): String {
         return when (category) {
-            "Politika" -> "politics"
-            "Sport" -> "sports"
-            "Nauka/tehnologija" -> "science"
+            "Politika","politics" -> "politics"
+            "Sport","sports" -> "sports"
+            "Nauka/tehnologija","science" -> "science"
             "Biznis" -> "business"
             "Zdravlje" -> "health"
-            "Zabava" -> "entertainment"
+            "Kultura","entertainment" -> "entertainment"
             "Hrana" -> "food"
             "Putovanja" -> "travel"
-            "Kultura" -> "general"
-            "science", "tech" -> "science"
-            "sports" -> "sports"
+            "tech" -> "science"
             "business" -> "business"
             "health" -> "health"
-            "entertainment" -> "entertainment"
             "food" -> "food"
             "travel" -> "travel"
             "general" -> "general"
@@ -58,87 +49,70 @@ class NewsDAO {
         }
     }
 
+    private val featuredCache = ConcurrentHashMap<String, List<NewsItem>>()
+
     suspend fun getTopStoriesByCategory(category: String): List<NewsItem> {
-        val currentTime = System.currentTimeMillis()
-        val apiCategory = mapCategoryForApi(category)
-        val lastFetchTime = lastFetch[apiCategory] ?: 0L
-
-        val cachedNewsForCategory = _allStoriesList
-            .filter { mapCategoryForApi(it.category) == apiCategory }
-            .distinctBy { it.uuid }
-
-        // Ako je poziv bio unutar 30 sekundi — vrati keširane vijesti (ne kao featured)
-        if (currentTime - lastFetchTime < 30_000L) {
-            return cachedNewsForCategory.map { it.copy(isFeatured = false) }
+        val now = System.currentTimeMillis()
+        val mappedCategory = mapCategoryForApi(category)
+        val recentCall = cacheTime[mappedCategory]?.let { now - it < 30_000 } ?: false
+        Log.d("NewsDAO", "CACHE MISS/EXPIRATION: Making API call for category: $mappedCategory")
+        if (recentCall) {
+            Log.d("NewsDAO", "CACHE HIT: Returning cached featured news for category: $mappedCategory")
+            return featuredCache[mappedCategory] ?: NewsData.getByCategory(mappedCategory)
         }
 
-        return try {
-            val response = apiService.searchNews(apiToken = API_TOKEN, category = category)
-            val fetchedNews = response.data.map { it.toNewsItem() }
+        val result = apiService.searchNews(API_TOKEN, mappedCategory).data.map { it.toNewsItem() }
+       val top3 = result.take(3).map { it.copy(category = mappedCategory, isFeatured = true) }
 
-            val newFeaturedNews = mutableListOf<NewsItem>()
-
-            for (news in fetchedNews) {
-                val existing = allStoriesMap[news.uuid]
-                if (existing != null) {
-                    // Vijest postoji, samo je označi kao featured
-                    val updated = existing.copy(isFeatured = true)
-                    newFeaturedNews.add(updated)
-                } else {
-                    // Nova vijest, dodaj je i označi kao featured
-                    val featured = news.copy(isFeatured = true)
-                    allStoriesMap[featured.uuid] = featured
-                    _allStoriesList.add(featured)
-                    newFeaturedNews.add(featured)
-                }
-
-                // Samo 3 featured vijesti
-                if (newFeaturedNews.size == 3) break
-            }
-
-            // Ažuriraj vrijeme poziva
-            lastFetch[apiCategory] = currentTime
-
-            // Vrati samo 3 featured vijesti
-            return newFeaturedNews
-        } catch (e: Exception) {
-            println("API error: ${e.message}")
-            // Ako je došlo do greške, vrati keširane vijesti
-            return cachedNewsForCategory.map { it.copy(isFeatured = false) }
+        mutex.withLock {
+            NewsData.addAllIfNew(top3)
+            cacheTime[mappedCategory] = now
+            featuredCache[mappedCategory] = top3
+            Log.d("NewsDAO", "API CALL SUCCESS: Fetched and cached new top 3 stories for category: $mappedCategory")
         }
+
+        return top3
     }
 
 
-    fun getAllStories(): List<NewsItem> {
-        return allStoriesList.map { it.copy(isFeatured = false) }.toList()
-    }
+    fun getAllStories(): List<NewsItem> {  return NewsData.getAllNews() }
 
     suspend fun getSimilarStories(uuid: String): List<NewsItem> {
         try {
             UUID.fromString(uuid)
         } catch (e: IllegalArgumentException) {
+            Log.e("NewsDAO", "UUID nije validan: $uuid")
             throw InvalidUUIDException("Invalid UUID format: $uuid")
         }
 
+        uuidCache[uuid]?.let {
+
+            return it
+        }
+
         return try {
-            val response = apiService.getSimilarStories(apiToken = API_TOKEN, uuid = uuid)
-            val fetchedNews = response.data.map { it.toNewsItem() }
+            val response = apiService.getSimilarStories(uuid,API_TOKEN)
 
-            val result = mutableListOf<NewsItem>()
 
-            for (news in fetchedNews) {
-                if (!allStoriesMap.containsKey(news.uuid)) {
-                    allStoriesMap[news.uuid] = news
-                    _allStoriesList.add(news)
-                }
-                result.add(news)
-                if (result.size == 2) break
+            val fetched = response.data
+                .map { it.toNewsItem().copy(isFeatured = false) }
+                .filter { it.uuid != uuid }
+                .take(2)
+
+            Log.d("NewsDAO", "Nakon filtracije ostaje: ${fetched.size}")
+
+            val newItems = fetched.filter { f -> NewsData.getAllNews().none { it.uuid == f.uuid } }
+
+            mutex.withLock {
+                uuidCache[uuid] = fetched
+                NewsData.addAllIfNew(newItems)
+                Log.d("NewsDAO", "Dodano u cache: ${newItems.size} novih vijesti")
             }
 
-            return result
+            fetched
         } catch (e: Exception) {
-            println("API error: ${e.message}")
-            return emptyList()
+            Log.e("NewsDAO", "Greška u API pozivu za $uuid: ${e.message}", e)
+            emptyList()
         }
     }
 }
