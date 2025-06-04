@@ -19,7 +19,7 @@ fun FilterSection(
     onMoreFiltersClicked: () -> Unit,
     showMoreFiltersChip: Boolean = true
 ) {
-    val categories = listOf("Sve", "Politika", "Sport", "Nauka/tehnologija", "Kultura")
+    val categories = listOf("Sve", "Politika", "Sport", "Nauka","Tehnologija","Kultura")
     FlowRow(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -53,8 +53,9 @@ fun getChipTag(category: String): String {
     return when (category) {
         "Politika" -> "filter_chip_pol"
         "Sport" -> "filter_chip_spo"
-        "Nauka/tehnologija" -> "filter_chip_sci"
+        "Nauka" -> "filter_chip_sci"
         "Kultura" -> "filter_chip_cul"
+        "Tehnologija" -> "filter_chip_tech"
         "Sve" -> "filter_chip_all"
         else -> "filter_chip_unknown"
     }

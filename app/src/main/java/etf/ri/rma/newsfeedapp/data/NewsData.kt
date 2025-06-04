@@ -138,18 +138,12 @@ object NewsData {
         initialNews.addAll(hardcoded)
         }
 
-/**
- * ✅ Vraća sve vijesti: hardkodirane + dohvaćene sa API-ja
- */
+
 fun getAllNews(): List<NewsItem> {
     initializeHardcodedIfNeeded()
     return (initialNews + fetchedNews).distinctBy { it.uuid + it.category }
 }
 
-/**
- * ✅ Samo vijesti sa API-ja, bez hardkodiranih
- */
-fun getOnlyWebItems(): List<NewsItem> = fetchedNews.toList()
 
 fun getByCategory(category: String): List<NewsItem> {
     return getAllNews().filter { it.category.equals(category, ignoreCase = true) }
@@ -171,14 +165,7 @@ fun addAllIfNew(newItems: List<NewsItem>) {
     }
 }
 
-fun promoteToFeatured(uuid: String, category: String) {
-    val updated = fetchedNews.map {
-        if (it.uuid == uuid && it.category == category) it.copy(isFeatured = true)
-        else it
-    }
-    fetchedNews.clear()
-    fetchedNews.addAll(updated)
-}
+
 
 fun updateTagsForImageUrl(url: String, tags: List<String>) {
     (initialNews + fetchedNews).filter { it.imageUrl == url }.forEach { item ->
