@@ -33,12 +33,14 @@ fun NewsFeedScreen(navController: NavController? = null) {
     val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
     val newsDAO = remember { NewsDAO() }
     val mappedCategory = newsDAO.mapCategoryForApi(savedCategory)
-    LaunchedEffect( savedCategory, savedDateFrom, savedDateTo, savedUnwantedWords) {
+    LaunchedEffect( savedCategory) {
+
         scope.launch {
             runCatching {
                 val allNews = newsDAO.getAllStories()
                 val dateFrom = savedDateFrom?.let { runCatching { dateFormat.parse(it) }.getOrNull() }
                 val dateTo = savedDateTo?.let { runCatching { dateFormat.parse(it) }.getOrNull() }
+
 
                 val categoryNews = if (savedCategory == "Sve") {
                     allNews

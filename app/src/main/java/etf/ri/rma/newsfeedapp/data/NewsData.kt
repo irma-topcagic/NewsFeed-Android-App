@@ -29,7 +29,7 @@ object NewsData {
                 title = "Swiatek, Alcaraz off to good starts in French Open title defences",
                 snippet = "PARIS — Iga Swiatek, who has struggled lately, and Carlos Alcaraz, who has not, " +
                         "got off to good starts in their French Open title defences Monday, recording s",
-                imageUrl =" https://www.sportsnet.ca/wp-content/uploads/2025/05/Alcaraz-1.jpg",
+                imageUrl ="https://www.sportsnet.ca/wp-content/uploads/2025/05/Alcaraz-1.jpg",
                 category = "sports",
                 isFeatured = false,
 

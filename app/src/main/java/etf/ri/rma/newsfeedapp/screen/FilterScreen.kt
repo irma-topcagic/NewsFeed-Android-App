@@ -141,7 +141,8 @@ fun FilterScreen(
                     set("filters_category", selectedCategory)
                     set("filters_unwantedWords", unwantedWords)
                     set("filters_dateFrom", dateFrom)
-                    set("filters_dateTo", dateTo)
+
+
                 }
                 navController.popBackStack()
             },
