@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -14,33 +15,46 @@ import etf.ri.rma.newsfeedapp.data.NewsData
 import etf.ri.rma.newsfeedapp.data.network.ImagaDAO
 import etf.ri.rma.newsfeedapp.data.network.NewsDAO
 import etf.ri.rma.newsfeedapp.model.NewsItem
+import etf.ri.rma.newsfeedapp.data.NewsDatabase
+import etf.ri.rma.newsfeedapp.data.network.hasInternetConnection
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun NewsDetailsScreen(navController: NavController, newsId: String) {
-    val allNews = remember { NewsData.getAllNews() }
-    val currentNews = allNews.find { it.uuid == newsId }
 
-    val imagaDAO = remember { ImagaDAO() }
-    val newsDAO = remember { NewsDAO() }
+    val context = LocalContext.current
+    val imagaDAO = remember { ImagaDAO(context) }
+    val newsDAO = remember { NewsDAO(context) }
+    val savedNewsDAO = remember { NewsDatabase.getDatabase(context).newsDAO() }
+    var allNews by remember { mutableStateOf<List<NewsItem>>(emptyList()) }
 
+    LaunchedEffect(Unit) {
+        if (!hasInternetConnection(context)) {
+            allNews = savedNewsDAO.getAllNewsItems()
+        } else {
+            allNews = NewsData.getAllNews()
+        }
+    }
+    val currentNews = allNews.find { it.news.uuid == newsId }
     var tags by remember { mutableStateOf<List<String>>(emptyList()) }
     var similar by remember { mutableStateOf<List<NewsItem>>(emptyList()) }
     var tagError by remember { mutableStateOf<String?>(null) }
     var similarError by remember { mutableStateOf<String?>(null) }
-
+    LaunchedEffect(newsId) {
+        allNews = newsDAO.getAllStories()
+    }
     LaunchedEffect(currentNews) {
         currentNews?.let { news ->
-            if (news.imageTags.isEmpty() && !news.imageUrl.isNullOrBlank()) {
-                runCatching { imagaDAO.getTags(news.imageUrl) }
+            if (news.tags.isEmpty() && !news.news.imageUrl.isNullOrBlank()) {
+                runCatching { imagaDAO.getTags(news.news.imageUrl) }
                     .onSuccess { tags = it }
                     .onFailure { tagError = "Nema dostupnih tagova." }
             } else {
-                tags = news.imageTags
+                tags = news.tags.map { it.value }
             }
 
             if (similar.isEmpty()) {
-                runCatching { newsDAO.getSimilarStories(news.uuid) }
+                runCatching { newsDAO.getSimilarStories(news.news.uuid) }
                     .onSuccess { similar = it }
                     .onFailure { similarError = "Nema sličnih vijesti." }
             }
@@ -48,31 +62,35 @@ fun NewsDetailsScreen(navController: NavController, newsId: String) {
     }
 
     if (currentNews == null) {
-        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)) {
             Text("Vijest nije pronađena", modifier = Modifier.testTag("details_error"))
         }
         return
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(16.dp)) {
         AsyncImage(
-            model = currentNews.imageUrl,
-            contentDescription = currentNews.title,
+            model = currentNews.news.imageUrl,
+            contentDescription = currentNews.news.title,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(220.dp)
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text(text = currentNews.title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.testTag("details_title"))
+        Text(text = currentNews.news.title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.testTag("details_title"))
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = currentNews.snippet, modifier = Modifier.testTag("details_snippet"))
+        Text(text = currentNews.news.snippet, modifier = Modifier.testTag("details_snippet"))
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Kategorija: ${currentNews.category}", modifier = Modifier.testTag("details_category"))
+        Text(text = "Kategorija: ${currentNews.news.category}", modifier = Modifier.testTag("details_category"))
         Spacer(modifier = Modifier.height(4.dp))
-        Text(text = "Izvor: ${currentNews.source}", modifier = Modifier.testTag("details_source"))
+        Text(text = "Izvor: ${currentNews.news.source}", modifier = Modifier.testTag("details_source"))
         Spacer(modifier = Modifier.height(4.dp))
-        Text(text = "Datum objave: ${currentNews.publishedDate}", modifier = Modifier.testTag("details_date"))
+        Text(text = "Datum objave: ${currentNews.news.publishedDate}", modifier = Modifier.testTag("details_date"))
         Spacer(modifier = Modifier.height(16.dp))
 
         Text("Tagovi slike:")
@@ -96,11 +114,11 @@ fun NewsDetailsScreen(navController: NavController, newsId: String) {
         } else {
             similar.forEachIndexed { index, item ->
                 Text(
-                    text = item.title,
+                    text = item.news.title,
                     modifier = Modifier
                         .padding(vertical = 4.dp)
                         .clickable {
-                            navController.navigate("details/${item.uuid}") {
+                            navController.navigate("details/${item.news.uuid}") {
                                 popUpTo("newsFeed") { inclusive = false }
                             }
                         }
@@ -112,7 +130,9 @@ fun NewsDetailsScreen(navController: NavController, newsId: String) {
         Spacer(modifier = Modifier.weight(1f))
         Button(
             onClick = { navController.popBackStack("newsFeed", inclusive = false) },
-            modifier = Modifier.fillMaxWidth().testTag("details_close_button")
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("details_close_button")
         ) {
             Text("Zatvori detalje")
         }

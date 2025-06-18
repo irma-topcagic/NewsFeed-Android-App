@@ -1,5 +1,6 @@
 package etf.ri.rma.newsfeedapp.data.network
 
+import android.Manifest
 import android.util.Log
 import etf.ri.rma.newsfeedapp.data.NewsData
 import etf.ri.rma.newsfeedapp.data.network.api.NewsApiService
@@ -13,9 +14,36 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
+import androidx.annotation.RequiresPermission
+import etf.ri.rma.newsfeedapp.data.NewsDatabase
+import etf.ri.rma.newsfeedapp.data.SavedNewsDAO
 
-class NewsDAO {
+@RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
+fun hasInternetConnection(context: Context): Boolean {
+    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+    } else {
+        // For older Android versions
+        @Suppress("DEPRECATION")
+        val activeNetworkInfo = connectivityManager.activeNetworkInfo
+        @Suppress("DEPRECATION")
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected
+    }
+}
+
+class NewsDAO ( private val context: Context){
+    private val savedNewsDAO: SavedNewsDAO by lazy {
+        NewsDatabase.getDatabase(context).newsDAO()
+    }
     private var apiService: NewsApiService = RetrofitInstance.api
 
     fun setApiService(service: NewsApiService) {
@@ -30,7 +58,7 @@ class NewsDAO {
 
 
 
-     fun mapCategoryForApi(category: String): String {
+    fun mapCategoryForApi(category: String): String {
         return when (category) {
             "Politika","politics" -> "politics"
             "Sport","sports" -> "sports"
@@ -52,32 +80,54 @@ class NewsDAO {
 
     private val featuredCache = ConcurrentHashMap<String, List<NewsItem>>()
 
-    suspend fun getTopStoriesByCategory(category: String): List<NewsItem> = withContext(Dispatchers.IO){
+    suspend fun getTopStoriesByCategory(category: String): List<NewsItem> = withContext(Dispatchers.IO)
+
+     {
         val now = System.currentTimeMillis()
         val mappedCategory = mapCategoryForApi(category)
         val recentCall = cacheTime[mappedCategory]?.let { now - it < 30_000 } ?: false
-        Log.d("NewsDAO", " API call for category: $mappedCategory")
+
+        if (!hasInternetConnection(context)) {
+            Log.d("NewsDAO", "Offline mode: Fetching from DB for category: $mappedCategory")
+            return@withContext savedNewsDAO.getNewsWithCategory(mappedCategory)
+        }
         if (recentCall) {
             Log.d("NewsDAO", "CACHE HIT: $mappedCategory")
             return@withContext featuredCache[mappedCategory] ?: NewsData.getByCategory(mappedCategory)
         }
+         return@withContext try {
+             val result =
+                 apiService.searchNews(API_TOKEN, mappedCategory).data.map { it.toNewsItem() }
+             val top3 = result.take(3)
+                 .map { it.copy(news = it.news.copy(category = mappedCategory, isFeatured = true)) }
 
-        val result = apiService.searchNews(API_TOKEN, mappedCategory).data.map { it.toNewsItem() }
-        val top3 = result.take(3).map { it.copy(category = mappedCategory, isFeatured = true) }
+             mutex.withLock {
+                 NewsData.addAllIfNew(top3)
+                 cacheTime[mappedCategory] = now
+                 featuredCache[mappedCategory] = top3
+                 top3.forEach { newsItem ->
+                     savedNewsDAO.saveNews(newsItem)
+                 }
 
-        mutex.withLock {
-            NewsData.addAllIfNew(top3)
-            cacheTime[mappedCategory] = now
-            featuredCache[mappedCategory] = top3
-
-        }
-
-        return@withContext top3
+             }
+             top3
+         }
+             catch (e: Exception) {
+                 Log.e("NewsDAO", "Error fetching top stories from API: ${e.message}")
+                 savedNewsDAO.getNewsWithCategory(mappedCategory)
+             }
     }
 
 
 
-    fun getAllStories(): List<NewsItem> {  return NewsData.getAllNews() }
+    suspend fun getAllStories(): List<NewsItem> = withContext(Dispatchers.IO) {
+        if (hasInternetConnection(context)) {
+        return@withContext NewsData.getAllNews()} else {
+            // If offline, just return everything from the database
+            Log.d("NewsDAO", "Offline mode: Returning all stories from DB.")
+            return@withContext savedNewsDAO.getAllNewsItems()
+        }
+    }
 
     suspend fun getSimilarStories(uuid: String): List<NewsItem> = withContext(Dispatchers.IO) {
         try {
@@ -86,12 +136,12 @@ class NewsDAO {
             throw InvalidUUIDException("Neispravan UUID format: $uuid")
         }
 
-        val cachedSimilarStories = NewsCache.uuidCache[uuid]
-        if (cachedSimilarStories != null) {
-            if (cachedSimilarStories.isNotEmpty()) {
-                return@withContext cachedSimilarStories
-            }
+        if (!hasInternetConnection(context)) {
+            val offlineCached = NewsCache.uuidCache[uuid]
+            return@withContext offlineCached?.take(2) ?: emptyList()
         }
+
+
 
         return@withContext try {
             val response = apiService.getSimilarStories(uuid = uuid, apiToken = API_TOKEN)
@@ -101,12 +151,15 @@ class NewsDAO {
 
             val fetchedNews = fetchedDTOs.map { dto ->
                 val resolvedCategory = dto.categories?.firstOrNull() ?: "general"
-                dto.toNewsItem().copy(category = resolvedCategory, isFeatured = false)
+                dto.toNewsItem().copy(news = dto.toNewsItem().news.copy(category = resolvedCategory, isFeatured = false))
             }
 
             mutex.withLock {
                 NewsCache.uuidCache[uuid] = fetchedNews
                 NewsData.addAllIfNew(fetchedNews)
+                fetchedNews.forEach { newsItem ->
+                    savedNewsDAO.saveNews(newsItem)
+                }
             }
 
             fetchedNews

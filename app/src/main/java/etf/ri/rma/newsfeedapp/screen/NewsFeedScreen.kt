@@ -5,10 +5,12 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import etf.ri.rma.newsfeedapp.data.NewsData
+import etf.ri.rma.newsfeedapp.data.NewsDatabase
 import etf.ri.rma.newsfeedapp.data.network.NewsDAO
 import etf.ri.rma.newsfeedapp.model.NewsItem
 import kotlinx.coroutines.launch
@@ -30,8 +32,11 @@ fun NewsFeedScreen(navController: NavController? = null) {
     var loadError by remember { mutableStateOf<String?>(null) }
 
     val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
-    val newsDAO = remember { NewsDAO() }
+    val context = LocalContext.current
+    val newsDAO = remember { NewsDAO(context) }
+
     val mappedCategory = newsDAO.mapCategoryForApi(savedCategory)
+    val savedNewsDAO = remember { NewsDatabase.getDatabase(context).newsDAO() }
     LaunchedEffect( savedCategory) {
 
         scope.launch {
@@ -45,33 +50,35 @@ fun NewsFeedScreen(navController: NavController? = null) {
                     allNews
                 } else {
                     val topFetched = newsDAO.getTopStoriesByCategory(mappedCategory)
-                    val topFetchedUuids = topFetched.map { it.uuid }.toSet()
+                    val topFetchedUuids = topFetched.map { it.news.uuid }.toSet()
 
-                    val categoryNewsAll = NewsData.getByCategory(mappedCategory)
+                    val allCategoryNewsFromDB = savedNewsDAO.getNewsWithCategory(mappedCategory)
+                    val featuredNews = topFetched.map { it.copy(news = it.news.copy(isFeatured = true)) }
 
-                    val featured = categoryNewsAll.filter { it.uuid in topFetchedUuids }
-                        .map { it.copy(isFeatured = true) }
+                    val otherCategoryNews = allCategoryNewsFromDB.filter { it.news.uuid !in topFetchedUuids }
+                        .map { it.copy(news = it.news.copy(isFeatured = false)) } // Explicitly set as NOT featured
 
-                    val others = categoryNewsAll.filter { it.uuid !in topFetchedUuids }
-                        .map { it.copy(isFeatured = false) }
+                    // Combine featured and other category news
+                   featuredNews + otherCategoryNews
 
-                    featured + others
+
                 }
+
 
                 var filtered = categoryNews
 
                 if (savedUnwantedWords.isNotEmpty()) {
                     filtered = filtered.filter { item ->
                         savedUnwantedWords.none { word ->
-                            item.title.contains(word, ignoreCase = true) ||
-                                    item.snippet.contains(word, ignoreCase = true)
+                            item.news.title.contains(word, ignoreCase = true) ||
+                                    item.news.snippet.contains(word, ignoreCase = true)
                         }
                     }
                 }
 
                 if (dateFrom != null && dateTo != null) {
                     filtered = filtered.filter {
-                        runCatching { dateFormat.parse(it.publishedDate) }
+                        runCatching { dateFormat.parse(it.news.publishedDate) }
                             .getOrNull()?.let { d -> d in dateFrom..dateTo } ?: false
                     }
                 }

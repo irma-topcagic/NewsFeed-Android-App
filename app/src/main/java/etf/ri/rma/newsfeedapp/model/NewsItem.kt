@@ -1,14 +1,20 @@
 package etf.ri.rma.newsfeedapp.model
 
-data class NewsItem(
-    val uuid: String,
-    val title: String,
-    val snippet: String,
-    val imageUrl: String?,
-    val category: String,
-    val isFeatured: Boolean,
-    val source: String,
-    val publishedDate: String,
-    val imageTags: ArrayList<String>
+import androidx.room.Embedded
+import androidx.room.Relation
+import androidx.room.Junction
 
+data class NewsItem(
+    @Embedded val news: NewsEntity,
+
+    @Relation(
+        parentColumn="id",
+        entity= TagEntity::class,
+        entityColumn="id",
+        associateBy = Junction(
+            value= NewsTagCrossRef::class,
+            parentColumn = "newsId",
+            entityColumn = "tagsId"
+        )
+    ) val tags: List<TagEntity>
 )

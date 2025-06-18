@@ -1,8 +1,10 @@
-
 package etf.ri.rma.newsfeedapp.data.network
 
+import android.content.Context
 import android.util.Log
 import etf.ri.rma.newsfeedapp.data.NewsData
+import etf.ri.rma.newsfeedapp.data.NewsDatabase
+import etf.ri.rma.newsfeedapp.data.SavedNewsDAO
 import etf.ri.rma.newsfeedapp.data.network.api.ImagaApiService
 import etf.ri.rma.newsfeedapp.data.network.api.ImageRetrofit
 import etf.ri.rma.newsfeedapp.data.network.exception.InvalidImageURLException
@@ -11,7 +13,10 @@ import kotlinx.coroutines.sync.withLock
 
 
 
-class ImagaDAO {
+class ImagaDAO(private val context: Context) {
+    private val savedNewsDAO: SavedNewsDAO by lazy {
+        NewsDatabase.getDatabase(context).newsDAO()
+    }
     private val mutex = Mutex()
 
     private var apiService: ImagaApiService = ImageRetrofit.api
@@ -28,21 +33,24 @@ class ImagaDAO {
             throw InvalidImageURLException("Izuzetak u url: $imageUrl")
         }
 
-        val cachedTags = NewsCache.tagCache[imageUrl] // Use NewsCache.tagCache
-        if (cachedTags != null) {
-            if (cachedTags.isNotEmpty()) {
-                return cachedTags
-            }
+        val newsId = savedNewsDAO.getNewsIdByImageUrl(imageUrl)
+            ?: return emptyList()
+
+        val existingTags = savedNewsDAO.getTags(newsId.toInt())
+        if (existingTags.isNotEmpty()) {
+            return existingTags
         }
-            val response = apiService.getImageTags(imageUrl,"acc_b5c20d5f670ac3d")
+
+        val response = apiService.getImageTags(imageUrl,"acc_b5c20d5f670ac3d")
         val tags = response.result?.tags?.mapNotNull { it.tag?.en }?.take(10)  ?: emptyList()
 
         mutex.withLock {
+
             NewsCache.tagCache[imageUrl] = tags
             NewsData.updateTagsForImageUrl(imageUrl, tags)
+            savedNewsDAO.addTags(tags, newsId.toInt())
         }
 
         return tags
     }
 }
-

@@ -1,6 +1,7 @@
 package etf.ri.rma.newsfeedapp.data
 
 import com.google.gson.annotations.SerializedName
+import etf.ri.rma.newsfeedapp.model.NewsEntity
 import etf.ri.rma.newsfeedapp.model.NewsItem
 
 
@@ -22,18 +23,26 @@ data class NewsItemDTO(
 )
 
 fun NewsItemDTO.toNewsItem(): NewsItem {
-    return NewsItem(
+    // 1. Create a NewsEntity object from the DTO properties
+    val newsEntity = NewsEntity(
         uuid = this.uuid,
         title = this.title,
         snippet = this.snippet,
         imageUrl = this.imageUrl,
         category = this.categories?.firstOrNull()?.lowercase() ?: "general",
-        isFeatured = false,
+        isFeatured = false, // Default to false when converting from DTO
         source = this.source,
-        publishedDate = formatPublishedDate(this.publishedDate),
-        imageTags = arrayListOf()
+        publishedDate = formatPublishedDate(this.publishedDate) // Ensure this function is correctly defined
+    )
+
+    // 2. Create the NewsItem using the newly created NewsEntity
+    //    Tags will be an empty list as they are populated through Room relations or separately
+    return NewsItem(
+        news = newsEntity,
+        tags = emptyList() // Initialize tags as an empty list of TagEntity
     )
 }
+
 
 fun formatPublishedDate(publishedAt:String?): String{
     return publishedAt?.let{

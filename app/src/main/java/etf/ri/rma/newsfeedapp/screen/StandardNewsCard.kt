@@ -33,11 +33,11 @@ fun StandardNewsCard(newsItem: NewsItem, modifier: Modifier = Modifier, onClick:
     ) {
         Row(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
             // Provjera da li imageUrl postoji i nije prazan prije prikaza slike
-            val imageUrl = newsItem.imageUrl
+            val imageUrl = newsItem.news.imageUrl
             if (!imageUrl.isNullOrEmpty()) { // Dodato provjeru za null i prazan string
                 Image(
                     painter = rememberAsyncImagePainter(imageUrl), // OVDJE JE PROMJENA
-                    contentDescription = "Slika vijesti: ${newsItem.title}", // Bolji contentDescription
+                    contentDescription = "Slika vijesti: ${newsItem.news.title}", // Bolji contentDescription
                     modifier = Modifier
                         .size(100.dp)
                         .padding(end = 16.dp),
@@ -50,21 +50,21 @@ fun StandardNewsCard(newsItem: NewsItem, modifier: Modifier = Modifier, onClick:
             }
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = newsItem.title,
+                    text = newsItem.news.title,
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Normal),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = newsItem.snippet,
+                    text = newsItem.news.snippet,
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "${newsItem.source} • ${newsItem.publishedDate}",
+                    text = "${newsItem.news.source} • ${newsItem.news.publishedDate}",
                     style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
