@@ -5,8 +5,8 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "news", indices = [Index(value = ["uuid"], unique = true)])
-data class NewsEntity(
+@Entity(tableName = "News", indices = [Index(value = ["uuid"], unique = true)])
+data class News(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val uuid: String,
     val title: String,
@@ -19,8 +19,8 @@ data class NewsEntity(
 )
 
 
-@Entity(tableName = "tags")
-data class TagEntity(
+@Entity(tableName = "Tags")
+data class Tags(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val value: String
 )
@@ -29,13 +29,13 @@ data class TagEntity(
     tableName = "NewsTags",
     foreignKeys = [
         ForeignKey(
-            entity = NewsEntity::class,
+            entity = News::class,
             parentColumns = ["id"],
             childColumns = ["newsId"],
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = TagEntity::class,
+            entity = Tags::class,
             parentColumns = ["id"],
             childColumns = ["tagsId"],
             onDelete = ForeignKey.CASCADE
@@ -43,7 +43,7 @@ data class TagEntity(
     ],
     indices = [Index(value = ["newsId"]), Index(value = ["tagsId"])]
 )
-data class NewsTagCrossRef(
+data class NewsTags(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val newsId: Int,
     val tagsId: Int

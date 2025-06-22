@@ -7,20 +7,20 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase // Important import
 import etf.ri.rma.newsfeedapp.model.NewsItem
-import etf.ri.rma.newsfeedapp.model.NewsEntity
-import etf.ri.rma.newsfeedapp.model.TagEntity
-import etf.ri.rma.newsfeedapp.model.NewsTagCrossRef
+import etf.ri.rma.newsfeedapp.model.News
+import etf.ri.rma.newsfeedapp.model.Tags
+import etf.ri.rma.newsfeedapp.model.NewsTags
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [NewsEntity::class, TagEntity::class, NewsTagCrossRef::class],
+    entities = [News::class, Tags::class, NewsTags::class],
     version = 1,
     exportSchema = false
 )
 abstract class NewsDatabase : RoomDatabase() {
-    abstract fun newsDAO(): SavedNewsDAO
+    abstract fun savedNewsDAO(): SavedNewsDAO
 
     companion object {
         @Volatile
@@ -38,7 +38,7 @@ abstract class NewsDatabase : RoomDatabase() {
                             CoroutineScope(Dispatchers.IO).launch {
 
                                 INSTANCE?.let { database ->
-                                    val newsDao = database.newsDAO()
+                                    val newsDao = database.savedNewsDAO()
                                     val hardcodedNews = NewsData.getAllNews()
 
                                     hardcodedNews.forEach { newsItem ->

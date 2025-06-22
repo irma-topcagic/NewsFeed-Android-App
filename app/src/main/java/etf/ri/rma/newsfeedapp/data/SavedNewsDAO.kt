@@ -6,19 +6,22 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import etf.ri.rma.newsfeedapp.model.NewsEntity
+import etf.ri.rma.newsfeedapp.model.News
 import etf.ri.rma.newsfeedapp.model.NewsItem
-import etf.ri.rma.newsfeedapp.model.NewsTagCrossRef
-import etf.ri.rma.newsfeedapp.model.TagEntity
+import etf.ri.rma.newsfeedapp.model.NewsTags
+import etf.ri.rma.newsfeedapp.model.Tags
 
 @Dao
 interface SavedNewsDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertNewsEntity(news: NewsEntity):Long
+    suspend fun insertNewsEntity(news: News):Long
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertTagsEntities(tags: List<TagEntity>): List<Long>
+    suspend fun insertTagsEntities(tags: List<Tags>): List<Long>
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertNewsTagCrossRef(refs: List<NewsTagCrossRef>): List<Long>
+    suspend fun insertNewsTagCrossRef(refs: List<NewsTags>): List<Long>
+    @Transaction
+    @Query("SELECT * FROM news")
+    suspend fun allNews(): List<NewsItem>
 
     @Transaction
     suspend fun saveNews(newsItem: NewsItem): Boolean {
@@ -28,9 +31,9 @@ interface SavedNewsDAO {
             val newsId = insertNewsEntity(newsItem.news)
 
 
-            if (newsId > 0 && newsItem.tags.isNotEmpty()) {
+            if (newsId > 0 && newsItem.imageTags.isNotEmpty()) {
 
-                val newTagsCount = addTags(newsItem.tags.map { it.value }, newsId.toInt())
+                val newTagsCount = addTags(newsItem.imageTags.map { it.value }, newsId.toInt())
 
             }
             true
@@ -40,7 +43,7 @@ interface SavedNewsDAO {
     }
 
     @Query("SELECT * FROM news WHERE uuid = :uuid")
-    suspend fun getNewsEntityByUuid(uuid: String): NewsEntity?
+    suspend fun getNewsEntityByUuid(uuid: String): News?
 
 
     @Transaction
@@ -56,7 +59,7 @@ interface SavedNewsDAO {
     suspend fun addTags(tagValues: List<String>, newsId: Int): Int {
         var newTagsAddedCount = 0
         val existingTags = getTagEntitiesByValues(tagValues)
-        val crossRefsToInsert = mutableListOf<NewsTagCrossRef>()
+        val crossRefsToInsert = mutableListOf<NewsTags>()
 
         tagValues.forEach { tagValue ->
             val existingTag = existingTags.find { it.value == tagValue }
@@ -64,7 +67,7 @@ interface SavedNewsDAO {
 
             if (existingTag == null) {
 
-                val newTagId = insertTagsEntities(listOf(TagEntity(value = tagValue))).first()
+                val newTagId = insertTagsEntities(listOf(Tags(value = tagValue))).first()
                 tagId = newTagId.toInt()
                 newTagsAddedCount++
             } else {
@@ -75,7 +78,7 @@ interface SavedNewsDAO {
 
             val isAlreadyLinked = getNewsTagCrossRef(newsId, tagId) != null
             if (!isAlreadyLinked) {
-                crossRefsToInsert.add(NewsTagCrossRef(newsId = newsId, tagsId = tagId))
+                crossRefsToInsert.add(NewsTags(newsId = newsId, tagsId = tagId))
             }
         }
 
@@ -92,10 +95,10 @@ interface SavedNewsDAO {
     @Query("SELECT * FROM news WHERE uuid = :uuid LIMIT 1")
     suspend fun getNewsItemByUuid(uuid: String): NewsItem?
     @Query("SELECT * FROM tags WHERE value IN (:tagValues)")
-    suspend fun getTagEntitiesByValues(tagValues: List<String>): List<TagEntity>
+    suspend fun getTagEntitiesByValues(tagValues: List<String>): List<Tags>
 
     @Query("SELECT * FROM NewsTags WHERE newsId = :newsId AND tagsId = :tagId LIMIT 1")
-    suspend fun getNewsTagCrossRef(newsId: Int, tagId: Int): NewsTagCrossRef?
+    suspend fun getNewsTagCrossRef(newsId: Int, tagId: Int): NewsTags?
 
 
     @Query("""
@@ -114,10 +117,10 @@ interface SavedNewsDAO {
         INNER JOIN NewsTags AS NT ON N.id = NT.newsId
         INNER JOIN tags AS T ON NT.tagsId = T.id
         WHERE T.value IN (:tagValues)
-        GROUP BY N.id -- Use GROUP BY to get unique news items even if they have multiple matching tags
+        GROUP BY N.id 
         ORDER BY N.publishedDate DESC
     """)
     suspend fun getSimilarNews(tagValues: List<String>): List<NewsItem>
     @Delete
-    suspend fun deleteNewsEntity(news: NewsEntity)
+    suspend fun deleteNewsEntity(news: News)
 }

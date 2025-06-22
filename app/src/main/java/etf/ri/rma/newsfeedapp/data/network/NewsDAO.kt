@@ -42,7 +42,7 @@ fun hasInternetConnection(context: Context): Boolean {
 
 class NewsDAO ( private val context: Context){
     private val savedNewsDAO: SavedNewsDAO by lazy {
-        NewsDatabase.getDatabase(context).newsDAO()
+        NewsDatabase.getDatabase(context).savedNewsDAO()
     }
     private var apiService: NewsApiService = RetrofitInstance.api
 

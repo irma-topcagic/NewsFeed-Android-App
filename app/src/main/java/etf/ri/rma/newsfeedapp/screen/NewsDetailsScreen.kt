@@ -25,7 +25,7 @@ fun NewsDetailsScreen(navController: NavController, newsId: String) {
     val context = LocalContext.current
     val imagaDAO = remember { ImagaDAO(context) }
     val newsDAO = remember { NewsDAO(context) }
-    val savedNewsDAO = remember { NewsDatabase.getDatabase(context).newsDAO() }
+    val savedNewsDAO = remember { NewsDatabase.getDatabase(context).savedNewsDAO() }
     var allNews by remember { mutableStateOf<List<NewsItem>>(emptyList()) }
 
     LaunchedEffect(Unit) {
@@ -45,12 +45,12 @@ fun NewsDetailsScreen(navController: NavController, newsId: String) {
     }
     LaunchedEffect(currentNews) {
         currentNews?.let { news ->
-            if (news.tags.isEmpty() && !news.news.imageUrl.isNullOrBlank()) {
+            if (news.imageTags.isEmpty() && !news.news.imageUrl.isNullOrBlank()) {
                 runCatching { imagaDAO.getTags(news.news.imageUrl) }
                     .onSuccess { tags = it }
                     .onFailure { tagError = "Nema dostupnih tagova." }
             } else {
-                tags = news.tags.map { it.value }
+                tags = news.imageTags.map { it.value }
             }
 
             if (similar.isEmpty()) {

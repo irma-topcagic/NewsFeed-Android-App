@@ -36,7 +36,7 @@ fun NewsFeedScreen(navController: NavController? = null) {
     val newsDAO = remember { NewsDAO(context) }
 
     val mappedCategory = newsDAO.mapCategoryForApi(savedCategory)
-    val savedNewsDAO = remember { NewsDatabase.getDatabase(context).newsDAO() }
+    val savedNewsDAO = remember { NewsDatabase.getDatabase(context).savedNewsDAO() }
     LaunchedEffect( savedCategory) {
 
         scope.launch {

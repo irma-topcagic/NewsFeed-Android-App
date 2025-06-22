@@ -11,10 +11,10 @@
       <SelectionState runConfigName="testIfCacheingWorks2()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="getTopNewsPolitika()">
+      <SelectionState runConfigName="testSimilarStories()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="testSimilarStories()">
+      <SelectionState runConfigName="TestS4">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

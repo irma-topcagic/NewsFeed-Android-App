@@ -15,7 +15,7 @@ import kotlinx.coroutines.sync.withLock
 
 class ImagaDAO(private val context: Context) {
     private val savedNewsDAO: SavedNewsDAO by lazy {
-        NewsDatabase.getDatabase(context).newsDAO()
+        NewsDatabase.getDatabase(context).savedNewsDAO()
     }
     private val mutex = Mutex()
 
