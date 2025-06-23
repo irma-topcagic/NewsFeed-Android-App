@@ -1,4 +1,4 @@
-// etf.ri.rma.newsfeedapp.screen/StandardNewsCard.kt
+
 package etf.ri.rma.newsfeedapp.screen
 
 import androidx.compose.foundation.layout.*
@@ -13,40 +13,38 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.platform.testTag
-// OBRISI OVO: import androidx.compose.ui.res.painterResource // Ne treba ti više za statičku sliku
+
 import androidx.compose.ui.text.font.FontWeight
-// OBRISI OVO: import etf.ri.rma.newsfeedapp.R // Ne treba ti R ako ne referenciraš R.drawable.slikarma
-// DODAJ OVO:
+
 import coil.compose.rememberAsyncImagePainter
 import etf.ri.rma.newsfeedapp.model.NewsItem
 
 @Composable
 fun StandardNewsCard(newsItem: NewsItem, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    // Uklonjen je suvišni Box koji je omotavao Card,
-    // jer Card već ima modificatore za popunjavanje širine, klikabilnost i padding.
+
     Card(
-        modifier = modifier // Koristi proslijeđeni modifier, koji već ima padding ako dolazi iz NewsList
+        modifier = modifier
             .fillMaxWidth()
             .clickable { onClick() }
             .testTag("standard_news_card"),
         shape = RoundedCornerShape(8.dp),
     ) {
         Row(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
-            // Provjera da li imageUrl postoji i nije prazan prije prikaza slike
+
             val imageUrl = newsItem.news.imageUrl
-            if (!imageUrl.isNullOrEmpty()) { // Dodato provjeru za null i prazan string
+            if (!imageUrl.isNullOrEmpty()) {
                 Image(
-                    painter = rememberAsyncImagePainter(imageUrl), // OVDJE JE PROMJENA
-                    contentDescription = "Slika vijesti: ${newsItem.news.title}", // Bolji contentDescription
+                    painter = rememberAsyncImagePainter(imageUrl),
+                    contentDescription = "Slika vijesti: ${newsItem.news.title}",
                     modifier = Modifier
                         .size(100.dp)
                         .padding(end = 16.dp),
                     contentScale = ContentScale.Crop
                 )
             } else {
-                // Alternativni prikaz ako nema slike (npr. prazan prostor ili placeholder ikona)
+
                 Spacer(modifier = Modifier.size(100.dp).padding(end = 16.dp))
-                // Ili možete ovdje dodati Text("Nema slike") ili Icon()
+
             }
             Column(modifier = Modifier.weight(1f)) {
                 Text(

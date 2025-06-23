@@ -32,7 +32,7 @@ fun hasInternetConnection(context: Context): Boolean {
         return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
                 capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
     } else {
-        // For older Android versions
+
         @Suppress("DEPRECATION")
         val activeNetworkInfo = connectivityManager.activeNetworkInfo
         @Suppress("DEPRECATION")
@@ -123,7 +123,7 @@ class NewsDAO ( private val context: Context){
     suspend fun getAllStories(): List<NewsItem> = withContext(Dispatchers.IO) {
         if (hasInternetConnection(context)) {
         return@withContext NewsData.getAllNews()} else {
-            // If offline, just return everything from the database
+            // vrati iz baze, ako je offline
             Log.d("NewsDAO", "Offline mode: Returning all stories from DB.")
             return@withContext savedNewsDAO.getAllNewsItems()
         }

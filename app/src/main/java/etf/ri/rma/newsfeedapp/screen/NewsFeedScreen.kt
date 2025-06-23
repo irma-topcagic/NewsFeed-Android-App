@@ -9,7 +9,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import etf.ri.rma.newsfeedapp.data.NewsData
 import etf.ri.rma.newsfeedapp.data.NewsDatabase
 import etf.ri.rma.newsfeedapp.data.network.NewsDAO
 import etf.ri.rma.newsfeedapp.model.NewsItem

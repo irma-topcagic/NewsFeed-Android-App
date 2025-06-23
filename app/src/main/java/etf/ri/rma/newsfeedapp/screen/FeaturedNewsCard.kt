@@ -1,4 +1,4 @@
-// etf.ri.rma.newsfeedapp.screen/FeaturedNewsCard.kt
+
 package etf.ri.rma.newsfeedapp.screen
 
 import androidx.compose.foundation.Image
@@ -15,30 +15,26 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.Alignment
-// OBRISI OVO: import androidx.compose.ui.res.painterResource // Ne treba ti više za statičku sliku
-// OBRISI OVO: import etf.ri.rma.newsfeedapp.R // Ne treba ti R ako ne referenciraš R.drawable.slikarma
-// DODAJ OVO:
 import coil.compose.rememberAsyncImagePainter
 import etf.ri.rma.newsfeedapp.model.NewsItem
 
 @Composable
 fun FeaturedNewsCard(newsItem: NewsItem, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    // Uklonjen je suvišni Box koji je omotavao Card,
-    // jer Card već ima modificatore za popunjavanje širine, klikabilnost i padding.
+
     Card(
-        modifier = modifier // Koristi proslijeđeni modifier, koji već ima padding ako dolazi iz NewsList
+        modifier = modifier
             .fillMaxWidth()
             .clickable { onClick() }
             .testTag("featured_news_card"),
         shape = RoundedCornerShape(8.dp),
     ) {
         Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
-            // Provjera da li imageUrl postoji i nije prazan prije prikaza slike
+
             val imageUrl = newsItem.news.imageUrl
             if (!imageUrl.isNullOrEmpty()) { // Dodato provjeru za null i prazan string
                 Image(
-                    painter = rememberAsyncImagePainter(imageUrl), // OVDJE JE PROMJENA
-                    contentDescription = "Slika vijesti: ${newsItem.news.title}", // Bolji contentDescription
+                    painter = rememberAsyncImagePainter(imageUrl),
+                    contentDescription = "Slika vijesti: ${newsItem.news.title}",
                     modifier = Modifier
                         .height(200.dp)
                         .fillMaxWidth(),
@@ -52,7 +48,7 @@ fun FeaturedNewsCard(newsItem: NewsItem, modifier: Modifier = Modifier, onClick:
                         .height(200.dp)
                         .fillMaxWidth()
                         .padding(8.dp),
-                    contentAlignment = Alignment.Center // Dodajte import androidx.compose.ui.Alignment
+                    contentAlignment = Alignment.Center
                 ) {
                     Text("Slika nije dostupna", style = MaterialTheme.typography.bodySmall)
                 }
