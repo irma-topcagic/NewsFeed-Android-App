@@ -29,6 +29,3 @@
 * **Real-time Logic:** Handlers/Schedulers for the 3s refresh rate
 
 ---
-
-
-* **Models:** Data structures for News items.
